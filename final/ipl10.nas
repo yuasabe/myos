@@ -1,4 +1,4 @@
-; hello-os
+; haribote-ipl (10 cylinders)
 ; TAB=4
 
 CYLS	EQU 10			; 10シリンダ分しか読み込んでいない
@@ -10,7 +10,7 @@ ORG	0x7c00
 JMP	entry
 
 DB	0x90
-DB	"HELLOIPL"
+DB	"HARIBOTE"
 DW	512
 DB	1
 DW	1
@@ -30,7 +30,7 @@ DB	"FAT12   "
 ;RESB 18
 TIMES 18 DB 0
 
-; Program
+; プログラム本体
 
 entry:
 	MOV		AX, 0
@@ -85,13 +85,10 @@ next:
 
 ; 読み終わったのでharibote.sysを実行だ！
 
+	MOV		[0x0ff0],CH		; IPLがどこまで読んだのかをメモ
 	JMP		0xc200
 
 ; 何もすることがないので終わる
-
-fin:
-	HLT
-	JMP fin
 
 error:
 	MOV		SI,msg
@@ -106,6 +103,10 @@ putloop:
 	INT		0x10 		; ビデオBIOS呼び出し
 	JMP putloop
 
+fin:
+	HLT
+	JMP fin
+
 msg:
 	DB		0x0a, 0x0a ; 改行2行
 	DB		"load error"
@@ -114,4 +115,5 @@ msg:
 	; RESB 	0x1fe-$
 	TIMES	0x1fe-($-$$) DB 0
 	DB		0x55, 0xaa
+	
 	; PCはまずディスクの最初のセクタを読み、その最後の2バイトを見る。それが55AAであればboot sectorと認識する。
