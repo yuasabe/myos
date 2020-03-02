@@ -1,6 +1,8 @@
 ; hello-os
 ; TAB=4
 
+CYLS	EQU 10
+
 ORG	0x7c00
 
 ; FAT12 FD
@@ -39,6 +41,55 @@ entry:
 
 	MOV		SI, msg
 
+; ディスクを読む
+
+	MOV		AX,0x0820
+	MOV		ES,AX
+	MOV		CH,0			; シリンダ0
+	MOV		DH,0			; ヘッド0
+	MOV		CL,2			; セクタ2
+
+readloop:
+	MOV		SI,0			; 失敗回数を数えるレジスタ
+
+retry:
+	MOV		AH,0x02			; AH=0x02 : ディスク読み込み
+	MOV		AL,1			; 1セクタ
+	MOV		BX,0
+	MOV		DL,0x00			; Aドライブ
+	INT		0x13			; ディスクBIOS呼び出し
+	JNC		next				; エラーが起きなければnextへ
+	ADD		SI,1
+	CMP		SI,5
+	JAE		error			; SI >= 5だったらerrorへ
+	MOV		AH, 0x00
+	MOV		DL, 0x00
+	INT		0x13			; ドライブのリセット
+	JMP		retry
+
+next:
+	MOV		AX,ES			; アドレスを0x200進める
+	ADD		AX,0x0020
+	MOV		ES,AX
+	ADD		CL,1
+	CMP 	CL,18
+	JBE		readloop	; CL <= 18 だったらreadloopへ
+	MOV		CL,1
+	ADD		DH,1
+	CMP		DH,2
+	JB		readloop	; DH < 2だったらreadloopへ
+	MOV		DH,0
+	ADD		CH,1
+	CMP		CH,CYLS
+	JB		readloop
+
+fin:
+	HLT
+	JMP fin
+
+error:
+	MOV		SI,msg
+
 putloop:
 	MOV		AL, [SI]
 	ADD		SI, 1
@@ -49,13 +100,9 @@ putloop:
 	INT		0x10 		; ビデオBIOS呼び出し
 	JMP putloop
 
-fin:
-	HLT
-	JMP fin
-
 msg:
 	DB		0x0a, 0x0a ; 改行2行
-	DB		"hello, world"
+	DB		"load error"
 	DB		0x0a
 	DB		0
 	; RESB 	0x1fe-$
