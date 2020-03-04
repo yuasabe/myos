@@ -12,6 +12,7 @@ asmhead.bin : asmhead.nas Makefile
 bootpack.hrb : bootpack.c hrb.ld Makefile
 	# Compile C file using linker script
 	i386-elf-gcc -march=i486 -m32 -nostdlib -T hrb.ld bootpack.c -o bootpack.hrb
+	# ld -m elf_i386 -nostdlib -s -T hrb.ld bootpack.c -o bootpack.hrb 
 
 haribote.sys : asmhead.bin bootpack.hrb Makefile
 	cat asmhead.bin bootpack.hrb > haribote.sys
@@ -23,7 +24,6 @@ haribote.img : ipl10.bin haribote.sys Makefile
 	# -C : creates the disk image file to install the MS-DOS file system on it.
 	# -B : Use the boot sector stored in the given file or device, instead of using its own. 
 	#      Only the geometry fields are updated to match the target disks parameters.
-	# -i : 
 
 # asm :
 # 	make -r ipl.bin
