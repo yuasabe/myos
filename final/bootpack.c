@@ -1,6 +1,10 @@
+
+extern void io_hlt(void);
+
 void HariMain(void) {
 
-fin:
-	goto fin;
+	fin:
+		io_hlt();
+		goto fin;
 
 }

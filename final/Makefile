@@ -9,10 +9,14 @@ ipl10.bin : ipl10.nas Makefile
 asmhead.bin : asmhead.nas Makefile
 	nasm asmhead.nas -o asmhead.bin -l asmhead.lst
 
-bootpack.hrb : bootpack.c hrb.ld Makefile
+naskfunc.o : naskfunc.nas Makefile
+	nasm -f elf naskfunc.nas -o naskfunc.o -l naskfunc.lst
+
+bootpack.hrb : naskfunc.o bootpack.c hrb.ld Makefile
 	# Compile C file using linker script
-	i386-elf-gcc -march=i486 -m32 -nostdlib -T hrb.ld bootpack.c -o bootpack.hrb
+	i386-elf-gcc -march=i486 -m32 -nostdlib -T hrb.ld bootpack.c naskfunc.o -o bootpack.hrb
 	# ld -m elf_i386 -nostdlib -s -T hrb.ld bootpack.c -o bootpack.hrb 
+	# gcc -march=i486 -m32 -nostdlib -T hrb.ld bootpack.c -o bootpack.hrb
 
 haribote.sys : asmhead.bin bootpack.hrb Makefile
 	cat asmhead.bin bootpack.hrb > haribote.sys
@@ -40,3 +44,4 @@ clean:
 	rm *.lst
 	rm *.sys
 	rm *.hrb
+	rm *.o
