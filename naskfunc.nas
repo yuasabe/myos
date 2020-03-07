@@ -1,7 +1,7 @@
 ; naskfunc
 
 ; [FORMAT "WCOFF"]
-[INTERSET "i486p"]
+; [INTERSET "i486p"]
 [BITS 32]
 
 ; [FILE "naskfunc.nas"]
