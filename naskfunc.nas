@@ -6,7 +6,8 @@
 
 ; [FILE "naskfunc.nas"]
 
-		GLOBAL	io_hlt,write_mem8
+		GLOBAL	io_hlt
+		GLOBAL	write_mem8
 
 [SECTION .text]
 
